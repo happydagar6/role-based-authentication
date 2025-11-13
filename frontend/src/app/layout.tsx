@@ -2,18 +2,18 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Role-Based Auth App",
-  description: "A simple role-based authentication application",
+  title: "Role Auth App",
+  description: "Simple role-based authentication",
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang="en">
-      <body className="antialiased">
+      <body>
         {children}
       </body>
     </html>

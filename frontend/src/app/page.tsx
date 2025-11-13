@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUserStore } from './store/useUserStore';
 
-export default function Home() {
+export default function HomePage() {
   const router = useRouter();
   const { isAuthenticated, initialize } = useUserStore();
 
@@ -21,10 +21,24 @@ export default function Home() {
   }, [isAuthenticated, router]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="text-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-        <p className="mt-2 text-gray-600">Loading...</p>
+    <div className="page-container">
+      <div className="container text-center">
+        <h1>🔐 Role Auth App</h1>
+        <p style={{ color: '#6b7280', marginBottom: '24px' }}>
+          Simple and secure role-based authentication
+        </p>
+        <div style={{ 
+          width: '40px', 
+          height: '40px', 
+          border: '3px solid #f3f3f3', 
+          borderTop: '3px solid #3b82f6', 
+          borderRadius: '50%', 
+          animation: 'spin 1s linear infinite',
+          margin: '0 auto'
+        }}></div>
+        <p style={{ color: '#6b7280', marginTop: '12px', fontSize: '14px' }}>
+          Redirecting...
+        </p>
       </div>
     </div>
   );

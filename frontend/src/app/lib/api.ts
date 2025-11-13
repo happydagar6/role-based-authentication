@@ -38,6 +38,7 @@ export interface User {
   name: string;
   email: string;
   role: 'USER' | 'ADMIN';
+  created_at?: string;
 }
 
 export interface AuthResponse {
@@ -55,6 +56,30 @@ export interface SignupData {
   email: string;
   password: string;
   role: 'USER' | 'ADMIN';
+}
+
+export interface CreateUserData {
+  name: string;
+  email: string;
+  password: string;
+  role: 'USER' | 'ADMIN';
+}
+
+export interface UpdateUserData {
+  name: string;
+  email: string;
+  role: 'USER' | 'ADMIN';
+  password?: string;
+}
+
+export interface UsersResponse {
+  users: User[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    pages: number;
+  };
 }
 
 export const authApi = {
@@ -77,6 +102,39 @@ export const authApi = {
     const response = await api.post('/auth/logout');
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    return response.data;
+  },
+};
+
+export const usersApi = {
+  getUsers: async (page = 1, limit = 10, search = '', role = ''): Promise<UsersResponse> => {
+    const params = new URLSearchParams({
+      page: page.toString(),
+      limit: limit.toString(),
+      ...(search && { search }),
+      ...(role && { role }),
+    });
+    const response = await api.get(`/users?${params}`);
+    return response.data;
+  },
+
+  createUser: async (data: CreateUserData): Promise<{ user: User; message: string }> => {
+    const response = await api.post('/users', data);
+    return response.data;
+  },
+
+  updateUser: async (id: string, data: UpdateUserData): Promise<{ user: User; message: string }> => {
+    const response = await api.put(`/users/${id}`, data);
+    return response.data;
+  },
+
+  deleteUser: async (id: string): Promise<{ message: string; user: User }> => {
+    const response = await api.delete(`/users/${id}`);
+    return response.data;
+  },
+
+  getUser: async (id: string): Promise<{ user: User }> => {
+    const response = await api.get(`/users/${id}`);
     return response.data;
   },
 };

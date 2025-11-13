@@ -9,7 +9,6 @@ export default function DashboardPage() {
   const router = useRouter();
   const { user, isAuthenticated, logout, initialize, setUser } = useUserStore();
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState('');
 
   useEffect(() => {
     initialize();
@@ -23,13 +22,11 @@ export default function DashboardPage() {
       }
 
       try {
-        // Verify token and get fresh user data
         const response = await authApi.getMe();
         setUser(response.user);
         setIsLoading(false);
       } catch (err) {
         console.error('Failed to fetch user data:', err);
-        setError('Failed to load user data');
         logout();
         router.push('/login');
       }
@@ -41,204 +38,120 @@ export default function DashboardPage() {
   const handleLogout = async () => {
     try {
       await authApi.logout();
-      logout();
-      router.push('/login');
     } catch (err) {
       console.error('Logout error:', err);
-      // Force logout even if API call fails
+    } finally {
       logout();
       router.push('/login');
     }
   };
 
+  if (!isAuthenticated) {
+    return <div>Redirecting to login...</div>;
+  }
+
   if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-2 text-gray-600">Loading...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-red-600">{error}</p>
-          <button
-            onClick={() => router.push('/login')}
-            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-          >
-            Back to Login
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  if (!user) {
-    return null;
+    return <div>Loading...</div>;
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">
-                Welcome, {user.name} ({user.role})
-              </h1>
-              <p className="text-gray-600 mt-1">{user.email}</p>
-            </div>
-            <button
-              onClick={handleLogout}
-              className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500"
-            >
-              Logout
-            </button>
-          </div>
-        </div>
-      </header>
+    <div className="dashboard-container">
+      <div className="flex justify-between items-center mb-4">
+        <h1>Dashboard</h1>
+        <button onClick={handleLogout} className="btn-danger">
+          Logout
+        </button>
+      </div>
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {/* Role-specific content */}
-          {user.role === 'ADMIN' ? (
+      <div style={{ marginBottom: '24px', padding: '20px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+        <h2>Welcome back, {user?.name}!</h2>
+        <p style={{ margin: '8px 0', color: '#6b7280' }}>
+          <strong>Email:</strong> {user?.email}
+        </p>
+        <p style={{ margin: '8px 0', color: '#6b7280' }}>
+          <strong>Role:</strong> 
+          <span style={{ 
+            background: user?.role === 'ADMIN' ? '#ddd6fe' : '#dcfce7', 
+            color: user?.role === 'ADMIN' ? '#7c3aed' : '#16a34a',
+            padding: '2px 8px',
+            borderRadius: '4px',
+            fontSize: '12px',
+            marginLeft: '8px'
+          }}>
+            {user?.role}
+          </span>
+        </p>
+      </div>
+
+      <div className="mb-4">
+        <h3>Quick Actions</h3>
+        <div className="flex gap-2 flex-wrap" style={{ marginTop: '12px' }}>
+          {user?.role === 'ADMIN' ? (
             <>
-              {/* Admin Dashboard */}
-              <div className="bg-white overflow-hidden shadow rounded-lg">
-                <div className="p-5">
-                  <div className="flex items-center">
-                    <div className="flex-shrink-0">
-                      <div className="w-8 h-8 bg-blue-600 rounded-md flex items-center justify-center">
-                        <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
-                          <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                      </div>
-                    </div>
-                    <div className="ml-5">
-                      <h3 className="text-lg font-medium text-gray-900">Admin Panel</h3>
-                      <p className="text-gray-500">Manage users and system settings</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-white overflow-hidden shadow rounded-lg">
-                <div className="p-5">
-                  <div className="flex items-center">
-                    <div className="flex-shrink-0">
-                      <div className="w-8 h-8 bg-green-600 rounded-md flex items-center justify-center">
-                        <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
-                          <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                      </div>
-                    </div>
-                    <div className="ml-5">
-                      <h3 className="text-lg font-medium text-gray-900">User Management</h3>
-                      <p className="text-gray-500">View and manage all users</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-white overflow-hidden shadow rounded-lg">
-                <div className="p-5">
-                  <div className="flex items-center">
-                    <div className="flex-shrink-0">
-                      <div className="w-8 h-8 bg-purple-600 rounded-md flex items-center justify-center">
-                        <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
-                          <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                      </div>
-                    </div>
-                    <div className="ml-5">
-                      <h3 className="text-lg font-medium text-gray-900">System Reports</h3>
-                      <p className="text-gray-500">View system analytics and reports</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <button 
+                onClick={() => router.push('/users')}
+                className="btn-primary"
+              >
+                👥 Manage Users
+              </button>
+              <button 
+                onClick={() => alert('Admin settings coming soon!')}
+                className="btn-secondary"
+              >
+                ⚙️ Admin Settings
+              </button>
             </>
           ) : (
             <>
-              {/* User Dashboard */}
-              <div className="bg-white overflow-hidden shadow rounded-lg">
-                <div className="p-5">
-                  <div className="flex items-center">
-                    <div className="flex-shrink-0">
-                      <div className="w-8 h-8 bg-blue-600 rounded-md flex items-center justify-center">
-                        <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
-                          <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                      </div>
-                    </div>
-                    <div className="ml-5">
-                      <h3 className="text-lg font-medium text-gray-900">My Profile</h3>
-                      <p className="text-gray-500">View and edit your profile</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-white overflow-hidden shadow rounded-lg">
-                <div className="p-5">
-                  <div className="flex items-center">
-                    <div className="flex-shrink-0">
-                      <div className="w-8 h-8 bg-green-600 rounded-md flex items-center justify-center">
-                        <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
-                          <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                      </div>
-                    </div>
-                    <div className="ml-5">
-                      <h3 className="text-lg font-medium text-gray-900">My Tasks</h3>
-                      <p className="text-gray-500">View your assigned tasks</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-white overflow-hidden shadow rounded-lg">
-                <div className="p-5">
-                  <div className="flex items-center">
-                    <div className="flex-shrink-0">
-                      <div className="w-8 h-8 bg-yellow-600 rounded-md flex items-center justify-center">
-                        <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
-                          <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                      </div>
-                    </div>
-                    <div className="ml-5">
-                      <h3 className="text-lg font-medium text-gray-900">Settings</h3>
-                      <p className="text-gray-500">Manage your account settings</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <button 
+                onClick={() => alert('Profile editing coming soon!')}
+                className="btn-secondary"
+              >
+                👤 Edit Profile
+              </button>
+              
+              <button 
+                onClick={() => alert('User settings coming soon!')}
+                className="btn-secondary"
+              >
+                ⚙️ Settings
+              </button>
             </>
           )}
         </div>
+      </div>
 
-        {/* Additional Info */}
-        <div className="mt-8">
-          <div className="bg-white shadow rounded-lg p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">
-              {user.role === 'ADMIN' ? 'Admin Dashboard' : 'User Dashboard'}
-            </h2>
-            <p className="text-gray-600">
-              {user.role === 'ADMIN'
-                ? 'As an admin, you have access to all system features and can manage users, view reports, and configure system settings.'
-                : 'Welcome to your user dashboard. Here you can manage your profile, view your tasks, and access your personal settings.'}
-            </p>
+      {user?.role === 'ADMIN' ? (
+        <div style={{ padding: '20px', background: 'linear-gradient(135deg, #667eea20, #764ba220)', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+          <h3>🔐 Admin Panel</h3>
+          <p style={{ color: '#6b7280', marginBottom: '12px' }}>You have administrator privileges. You can:</p>
+          <ul style={{ color: '#6b7280', paddingLeft: '20px' }}>
+            <li>View and manage all users in the system</li>
+            <li>Create, edit, and delete user accounts</li>
+            <li>Assign and modify user roles (USER/ADMIN)</li>
+            <li>Monitor system activity</li>
+          </ul>
+          <div style={{ marginTop: '16px' }}>
+            <button 
+              onClick={() => router.push('/users')}
+              className="btn-primary"
+            >
+              👥 Go to User Management
+            </button>
           </div>
         </div>
-      </main>
+      ) : (
+        <div style={{ padding: '20px', background: 'linear-gradient(135deg, #16a34a20, #22c55e20)', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+          <h3>👤 User Dashboard</h3>
+          <p style={{ color: '#6b7280', marginBottom: '12px' }}>Welcome! As a user, you have access to:</p>
+          <ul style={{ color: '#6b7280', paddingLeft: '20px' }}>
+            <li>View your profile information</li>
+            <li>Update your personal settings</li>
+            <li>Access user-specific features</li>
+            <li>Contact support if needed</li>
+          </ul>
+        </div>
+      )}
     </div>
   );
 }
