@@ -6,7 +6,13 @@ const authRouter = require("./routes/auth");
 const usersRouter = require("./routes/users");
 
 const app = express(); // Create an Express application
-app.use(cors()); // Enable CORS for all routes
+app.use(cors({
+  origin: [
+    'http://localhost:3000',
+    'https://role-based-authentication-two.vercel.app'
+  ],
+  credentials: true
+})); // Enable CORS for specific origins
 app.use(express.json()); // Middleware to parse JSON request bodies
 
 
