@@ -15,4 +15,4 @@ app.use("/api/auth", authRouter); // Use the auth router for authentication rout
 app.use("/api/users", usersRouter); // Use the users router for user management routes
 
 const PORT = process.env.PORT || 4000;
-app.listen(PORT, () => console.log(`Server listening on ${PORT}`));
+app.listen(PORT, '0.0.0.0', () => console.log(`Server listening on ${PORT}`));
