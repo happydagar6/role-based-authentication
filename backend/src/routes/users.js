@@ -4,7 +4,8 @@ const { createClient } = require("@supabase/supabase-js");
 const verifyAdmin = require("../middleware/verifyAdmin");
 
 const router = express.Router();
-const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
+// Use SERVICE_KEY for backend operations to bypass RLS
+const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
 const SALT_ROUNDS = 10;
 
 // Get all users (Admin only)
